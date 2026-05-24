@@ -1,9 +1,22 @@
+const fs = require('fs');
+const axios = require('axios');
+const pino = require('pino');
+const { useMultiFileAuthState, makeWASocket, getContentType } = require('@whiskeysockets/baileys');
+
+// ========== CONFIG ==========
+const nomorOwner = "6289525597016@s.whatsapp.net";
+const userDbPath = './userDb.json';
+const codeDbPath = './codeDb.json';
+let globalBooster = { xp: false, luck: false };
+
+// ========== CHARACTER POOL ==========
 const characterPool = {
     "S+": { rate: 0.05, items: ["Spirit Warrior (Goku)", "Cosmic Garou", "Sun God (Yoriichi)", "Dio / The World"] },
     "S": { rate: 0.5, items: ["Gilgamesh", "Limitless Gojo", "Sukuna", "Solo Hunter (Jinwoo)", "Anos Voldigoad", "Ice Queen"] },
     "A": { rate: 1.0, items: ["Qin Shi Huang", "Yuji Itadori"] }
 };
 
+// ========== USER FUNCTIONS ==========
 function getUser(sender) {
     if (!fs.existsSync(userDbPath)) fs.writeFileSync(userDbPath, JSON.stringify({}));
     let data = JSON.parse(fs.readFileSync(userDbPath, 'utf8'));
@@ -44,6 +57,7 @@ function getBuff(user, sender) {
     return b;
 }
 
+// ========== UTILITY FUNCTIONS ==========
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function gachaAnimation(sock, from, m) {
@@ -63,6 +77,7 @@ async function dailyPatrol(sock) {
     } catch (e) { console.log("Patrol Error") }
 }
 
+// ========== BOT MAIN ==========
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('session_v5_elite');
     const sock = makeWASocket({ auth: state, logger: pino({ level: 'silent' }), printQRInTerminal: true });
